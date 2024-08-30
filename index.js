@@ -43,6 +43,42 @@ app.post("/upload", upload.single("product"), (req, res) => {
   });
 });
 
+//Schema ofr creating products
+
+const Product = mongoose.model("Product", {
+  id: { type: Number, requied: true },
+  name: { type: String, requied: true },
+  image: { type: String, requied: true },
+  category: { type: String, requied: true },
+  new_price: { type: Number, requied: true },
+  old_price: { type: Number, requied: true },
+  date: { type: Date, default: Date.now },
+  available: {
+    type: Boolean,
+    default: true,
+  },
+});
+
+app.post("/addproduct", async (req, res) => {
+  const product = new Product({
+    id: req.body.id,
+    name: req.body.name,
+    image: req.body.image,
+    category: req.body.category,
+    new_price: req.body.new_price,
+    old_price: req.body.old_price,
+  });
+
+  console.log(product);
+
+  await product.save();
+  console.log("saved");
+  res.json({
+    success: true,
+    name: req.body.name,
+  });
+});
+
 app.listen(port, (error) => {
   if (!error) {
     console.log("Server is running on Port", port);
