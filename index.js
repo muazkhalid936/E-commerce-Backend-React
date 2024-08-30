@@ -70,7 +70,7 @@ app.post("/addproduct", async (req, res) => {
   }
 
   const product = new Product({
-    id: id,  // Use the dynamically calculated id value here
+    id: id, // Use the dynamically calculated id value here
     name: req.body.name,
     image: req.body.image,
     category: req.body.category,
@@ -84,6 +84,17 @@ app.post("/addproduct", async (req, res) => {
   console.log("saved");
   res.json({
     success: true,
+    name: req.body.name,
+  });
+});
+
+//Delete product
+
+app.post("/removeproduct", async (req, res) => {
+  await Product.findOneAndDelete({ id: req.body.id });
+  console.log("removed");
+  res.json({
+    success: 1,
     name: req.body.name,
   });
 });
