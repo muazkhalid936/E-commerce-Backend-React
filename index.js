@@ -98,6 +98,14 @@ app.post("/removeproduct", async (req, res) => {
     name: req.body.name,
   });
 });
+ 
+// Get Product
+
+app.get("/allproducts", async (req, res) => {
+  let products = await Product.find({});
+  console.log("All Products Fetched");
+  res.send(products);
+});
 
 // Start the server
 app.listen(port, (error) => {
