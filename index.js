@@ -36,22 +36,20 @@ const upload = multer({ storage: storage });
 app.use("/images", express.static("upload/images"));
 
 app.post("/upload", upload.single("product"), (req, res) => {
-  // <-- Corrected here
   res.json({
     success: 1,
     image_url: `http://localhost:${port}/images/${req.file.filename}`,
   });
 });
 
-//Schema ofr creating products
-
+// Schema for creating products
 const Product = mongoose.model("Product", {
-  id: { type: Number, requied: true },
-  name: { type: String, requied: true },
-  image: { type: String, requied: true },
-  category: { type: String, requied: true },
-  new_price: { type: Number, requied: true },
-  old_price: { type: Number, requied: true },
+  id: { type: Number, required: true },
+  name: { type: String, required: true },
+  image: { type: String, required: true },
+  category: { type: String, required: true },
+  new_price: { type: Number, required: true },
+  old_price: { type: Number, required: true },
   date: { type: Date, default: Date.now },
   available: {
     type: Boolean,
@@ -59,9 +57,20 @@ const Product = mongoose.model("Product", {
   },
 });
 
+// Add product endpoint
 app.post("/addproduct", async (req, res) => {
+  let products = await Product.find({});
+  let id = 0;
+
+  if (products.length > 0) {
+    let last_product = products[products.length - 1]; // Get the last product directly
+    id = last_product.id + 1;
+  } else {
+    id = 1;
+  }
+
   const product = new Product({
-    id: req.body.id,
+    id: id,  // Use the dynamically calculated id value here
     name: req.body.name,
     image: req.body.image,
     category: req.body.category,
@@ -79,10 +88,11 @@ app.post("/addproduct", async (req, res) => {
   });
 });
 
+// Start the server
 app.listen(port, (error) => {
   if (!error) {
     console.log("Server is running on Port", port);
   } else {
-    console.log("Error:" + error); // <-- Corrected here
+    console.log("Error:" + error);
   }
 });
