@@ -74,10 +74,11 @@ const User = mongoose.model("User", {
 
 app.post("/signup", async (req, res) => {
   let check = await User.findOne({ email: req.body.email });
+  console.log("In signup api");
   if (check) {
     return res
       .status(400)
-      .json({ success: false, errors: "Existing User Found" });
+      .json({ success: false, error: "Existing User Found" });
   }
   let cart = {};
   for (let i = 0; i < 100; i++) {
@@ -98,7 +99,7 @@ app.post("/signup", async (req, res) => {
     },
   };
   const token = jwt.sign(data, "secret_ecom");
-  res.json({ seccess: true, token });
+  res.json({ success: true, token });
 });
 
 //Login Api
@@ -116,7 +117,7 @@ app.post("/login", async (req, res) => {
       res.json({ success: false, error: "Wrong Password" });
     }
   } else {
-    res.json({ success: false, errors: "Wrong Email Id" });
+    res.json({ success: false, error: "Wrong Email Id" });
   }
 });
 
