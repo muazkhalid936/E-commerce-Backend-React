@@ -170,6 +170,16 @@ app.get("/allproducts", async (req, res) => {
   res.send(products);
 });
 
+//Get NewCollection
+
+app.get("/newcollection", async (req, res) => {
+  let products = await Product.find({});
+  products = products.slice(-4);
+  console.log("fetch new collection");
+
+  res.send(products);
+});
+
 // Start the server
 app.listen(port, (error) => {
   if (!error) {
