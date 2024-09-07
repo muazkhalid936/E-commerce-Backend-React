@@ -6,6 +6,8 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const { error } = require("console");
+const { accessSync } = require("fs");
 
 app.use(express.json());
 app.use(cors());
@@ -111,7 +113,7 @@ app.post("/login", async (req, res) => {
       const data = {
         user: { id: user.id },
       };
-      const token = jwt.sign(data, "secretc_ecom");
+      const token = jwt.sign(data, "secret_ecom");
       res.json({ success: true, token });
     } else {
       res.json({ success: false, error: "Wrong Password" });
@@ -178,6 +180,68 @@ app.get("/newcollection", async (req, res) => {
   console.log("fetch new collection");
 
   res.send(products);
+});
+
+//Popular category
+
+app.get("/popularinwomen", async (req, res) => {
+  let product = await Product.find({ category: "women" });
+  let popular = product.slice(0, 4);
+  res.send(popular);
+});
+
+//Middelware to fetch users
+const fetchUser = async (req, res, next) => {
+  const token = req.header("auth-token");
+  if (!token) {
+    res.status(401).send({ error: "Login First" });
+  } else {
+    try {
+      const data = jwt.verify(token, "secret_ecom");
+      req.user = data.user;
+      next();
+    } catch (error) {
+      res.status(401).send({ error: "please " });
+    }
+  }
+};
+
+//Add to cart API
+app.post("/addtocart", fetchUser, async (req, res) => {
+  // console.log(req.body,req.user);
+  let userData = await User.findOne({ _id: req.user.id });
+  userData.cartData[req.body.itemid] += 1;
+  await User.findOneAndUpdate(
+    { _id: req.user.id },
+    { cartData: userData.cartData }
+  );
+  // res.send("Added");
+});
+
+//Api for remove cartitem in database
+
+app.post("/removefromcart", fetchUser, async (req, res) => {
+  let userData = await User.findOne({ _id: req.user.id });
+
+  if (userData.cartData[req.body.itemid] > 0) {
+    userData.cartData[req.body.itemid] -= 1;
+    await User.findOneAndUpdate(
+      { _id: req.user.id },
+      { cartData: userData.cartData }
+    );
+  } else {
+    res.send({
+      success: false,
+      error: "Item is not added in Cart Yet",
+    });
+  }
+});
+
+//Cart Data Api
+app.post("/getcart", fetchUser, async (req, res) => {
+  console.log("Get Cart");
+  let userData = await User.findOne({ _id: req.user.id });
+  res.json(userData.cartData);
 });
 
 // Start the server
